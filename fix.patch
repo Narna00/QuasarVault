@@ -1,0 +1,46 @@
+diff --git a/include/quasarvault.h b/include/quasarvault.h
+index 1234567..abcdefg 100644
+--- a/include/quasarvault.h
++++ b/include/quasarvault.h
+@@ -20,6 +20,7 @@ typedef struct {
+     uint8_t flags;
+     uint32_t logical_size;
+     uint8_t *data;
++    uint32_t stored_size;   // actual allocated size of data
+ } QVObject;
+ 
+ typedef struct {
+diff --git a/src/qv_table.c b/src/qv_table.c
+index 1234567..abcdefg 100644
+--- a/src/qv_table.c
++++ b/src/qv_table.c
+@@ -29,6 +29,7 @@ int qv_table_put(QVObjectTable *table, uint32_t id, uint8_t flags, const uint8_t
+         object = &table->objects[table->count++];
+         memset(object, 0, sizeof(*object));
+         object->id = id;
++        object->stored_size = 0;
+     } else {
+         free(object->data);
+         object->data = NULL;
+@@ -44,6 +45,7 @@ int qv_table_put(QVObjectTable *table, uint32_t id, uint8_t flags, const uint8_t
+     object->flags = flags;
+     object->logical_size = logical_size;
++    object->stored_size = stored_size;
+     return QV_OK;
+ }
+ 
+diff --git a/src/qv_archive.c b/src/qv_archive.c
+index 1234567..abcdefg 100644
+--- a/src/qv_archive.c
++++ b/src/qv_archive.c
+@@ -86,6 +86,11 @@ static int parse_link(QVContext *ctx, const uint8_t *body, uint32_t body_size) {
+     if (src == NULL) {
+         return QV_ERR_FORMAT;
+     }
++    // Prevent heap-buffer-overflow: ensure span does not exceed stored data
++    if (span > src->stored_size) {
++        return QV_ERR_FORMAT;
++    }
+ 
+     return qv_table_put(&ctx->table, dst_id, src->flags, src->data, span, src->logical_size);
+ }
