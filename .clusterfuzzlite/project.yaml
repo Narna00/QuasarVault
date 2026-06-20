@@ -1,0 +1,8 @@
+language: c++
+primary_contact: security@example.com
+auto_ccs:
+  - security@example.com
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
