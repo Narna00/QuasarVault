@@ -74,6 +74,11 @@ static int parse_link(QVContext *ctx, const uint8_t *body, uint32_t body_size) {
         return QV_ERR_FORMAT;
     }
 
+    // FIX: validate span against the actual stored data size
+    if (span > src->stored_size) {
+        return QV_ERR_FORMAT;
+    }
+
     return qv_table_put(&ctx->table, dst_id, src->flags, src->data, span, src->logical_size);
 }
 
