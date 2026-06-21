@@ -23,7 +23,8 @@ static int grow_table(QVObjectTable *table) {
     return QV_OK;
 }
 
-int qv_table_put(QVObjectTable *table, uint32_t id, uint8_t flags, const uint8_t *data, uint32_t stored_size, uint32_t logical_size) {
+int qv_table_put(QVObjectTable *table, uint32_t id, uint8_t flags,
+                 const uint8_t *data, uint32_t stored_size, uint32_t logical_size) {
     QVObject *object = find_object(table, id);
     if (object == NULL) {
         if (table->count == table->capacity && grow_table(table) != QV_OK) {
@@ -48,6 +49,7 @@ int qv_table_put(QVObjectTable *table, uint32_t id, uint8_t flags, const uint8_t
     }
     object->flags = flags;
     object->logical_size = logical_size;
+    object->stored_size = stored_size;   // <-- STORE the allocated size
     return QV_OK;
 }
 
